@@ -1,24 +1,68 @@
-/* Improvements for Mobile Responsiveness */
-
-.hero {
-    overflow: hidden;
-}
-
-@media (max-width: 768px) {
-    .hero .wedge {
-        display: none;
-    }
-    nav {
-        padding: 10px; /* Adjusted padding for mobile */
-    }
-    footer {
-        layout: flex;
-        flex-direction: column; /* Improved footer layout on small screens */
-    }
-    section {
-        padding: 20px; /* Better section padding scaling */
-    }
-    a {
-        font-size: 16px; /* Optimizing link sizes for touch targets on mobile */
-    }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CipherFrame</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background: #35424a;
+            color: #ffffff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            color: #ffffff;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        main {
+            padding: 20px;
+        }
+        footer {
+            background: #35424a;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            nav a {
+                display: block;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to CipherFrame</h1>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+        </nav>
+    </header>
+    <main>
+        <h2>About Us</h2>
+        <p>We provide innovative solutions for modern problems.</p>
+        <h2>Our Services</h2>
+        <p>Check out our range of services.</p>
+    </main>
+    <footer>
+        <p>&copy; 2026 CipherFrame. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
