@@ -1,68 +1,723 @@
 <!DOCTYPE html>
+<html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CipherFrame</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        header {
-            background: #35424a;
-            color: #ffffff;
-            padding: 10px 0;
-            text-align: center;
-        }
-        nav {
-            margin: 10px 0;
-        }
-        nav a {
-            color: #ffffff;
-            margin: 0 15px;
-            text-decoration: none;
-        }
-        main {
-            padding: 20px;
-        }
-        footer {
-            background: #35424a;
-            color: #ffffff;
-            text-align: center;
-            padding: 10px 0;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-        }
-        @media (max-width: 600px) {
-            nav a {
-                display: block;
-                margin: 5px 0;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#050507" />
+
+<title>CipherFrame</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="CipherFrame — independent security research & experimental tooling." />
+
+  <!-- Fonts: poster headline + clean mono body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+<style>
+    body {
+      background:#0b0b0b;
+      color:#e6edf3;
+      font-family: "JetBrains Mono", monospace;
+    :root{
+      --cipher-black:#0A0A0C;
+      --cipher-void:#050507;
+      --cipher-smoke:#15151B;
+      --cipher-red:#FF2A2A;
+      --cipher-yellow:#FFD400;
+      --cipher-white:#F2F2F2;
+      --cipher-ash:#B6B6B6;
+      --cipher-ink:#09090B;
+
+      --max: 1100px;
+      --r: 16px;
+      --b: 1px;
+      --line: rgba(242,242,242,.10);
+      --line2: rgba(242,242,242,.06);
+
+      --shadow: 0 0 0 1px rgba(255,255,255,.08) inset;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--cipher-white);
+      font-family:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: radial-gradient(1200px 600px at 50% -10%, rgba(255,212,0,.09), transparent 55%),
+                  radial-gradient(900px 500px at 10% 20%, rgba(255,42,42,.10), transparent 50%),
+                  radial-gradient(900px 500px at 90% 30%, rgba(122,92,255,.05), transparent 55%),
+                  radial-gradient(900px 520px at 15% 72%, rgba(255,42,42,.09), transparent 55%),
+                  radial-gradient(900px 520px at 85% 75%, rgba(255,212,0,.08), transparent 58%),
+                  radial-gradient(900px 520px at 50% 120%, rgba(255,42,42,.07), transparent 60%),
+                  linear-gradient(180deg, var(--cipher-void), var(--cipher-black) 55%, #040406);
+      overflow-x:hidden;
+    }
+
+    /* Atmosphere: vignette + scanlines + grain */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(1200px 700px at 50% 10%, transparent 35%, rgba(0,0,0,.55) 78%),
+        radial-gradient(900px 650px at 50% 120%, transparent 45%, rgba(0,0,0,.55) 80%),
+        repeating-linear-gradient(
+          180deg,
+          rgba(255,255,255,.028) 0px,
+          rgba(255,255,255,.028) 1px,
+          rgba(0,0,0,0) 3px,
+          rgba(0,0,0,0) 6px
+        );
+      mix-blend-mode:soft-light;
+      opacity:.25;
+      z-index:0;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        linear-gradient(0deg, rgba(255,255,255,.045), rgba(255,255,255,0)),
+        radial-gradient(circle at 20% 30%, rgba(255,42,42,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 70% 60%, rgba(255,212,0,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 40% 80%, rgba(255,42,42,.08) 0 1px, transparent 2px);
+      opacity:.08;
+      filter: contrast(120%) saturate(110%);
+      z-index:0;
+    }
+
+    a{color:inherit; text-decoration:none}
+    a:focus{outline:2px solid rgba(255,212,0,.6); outline-offset:3px}
+
+    .wrap{position:relative; z-index:1;}
+    .container{max-width:var(--max); margin:0 auto; padding:0 18px;}
+    .c{color:var(--cipher-red);}
+    .f{color:var(--cipher-yellow);}
+
+    /* Tiny sticky nav. No corporate navbar nonsense. */
+    .nav{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background: linear-gradient(180deg, rgba(5,5,7,.92), rgba(5,5,7,.78));
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .nav-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:10px 0;
+    }
+    .mark{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      letter-spacing:.06em;
+      font-size:12px;
+      color:var(--cipher-ash);
+      user-select:none;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, var(--cipher-yellow), var(--cipher-red));
+      box-shadow: 0 0 18px rgba(255,42,42,.25);
+    }
+
+    .links{display:flex; gap:14px; flex-wrap:wrap; justify-content:flex-end;}
+    .links a{
+      font-size:12px;
+      color:var(--cipher-ash);
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid transparent;
+      transition: transform .12s ease, border-color .12s ease, color .12s ease;
+    }
+    .links a:hover{
+      color:var(--cipher-white);
+      border-color:rgba(255,255,255,.10);
+      transform:translateY(-1px);
+    }
+
+    /* Hero: poster mode */
+    .hero{
+      position:relative;
+      padding:62px 0 30px;
+      min-height: 62vh;
+      display:flex;
+      align-items:flex-start;
+    }
+
+    /* Corner wedges: pick ONE motif and commit. */
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      width:340px;
+      height:340px;
+      pointer-events:none;
+      opacity:.8;
+      filter: saturate(115%);
+    }
+    .hero::before{
+      left:-180px;
+      top:-200px;
+      background:
+        linear-gradient(135deg, rgba(255,42,42,.55), rgba(255,42,42,0) 55%),
+        linear-gradient(135deg, rgba(255,212,0,.45), rgba(255,212,0,0) 62%);
+      transform: rotate(8deg);
+      mix-blend-mode:screen;
+    }
+    .hero::after{
+      right:-210px;
+      bottom:-220px;
+      background:
+        linear-gradient(315deg, rgba(255,212,0,.50), rgba(255,212,0,0) 55%),
+        linear-gradient(315deg, rgba(255,42,42,.40), rgba(255,42,42,0) 62%);
+      transform: rotate(-10deg);
+      mix-blend-mode:screen;
+    }
+
+    $1
+
+    /* Big hero-only wordmark to eat the empty space (not sticky, not global). */
+    .hero-wall{
+      position:absolute;
+      right:-6vw;
+      top:38px;
+      pointer-events:none;
+      z-index:1;
+      font-family:"Anton", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+      text-transform:uppercase;
+      line-height:.78;
+      letter-spacing:.02em;
+      filter:saturate(125%);
+      mix-blend-mode:screen;
+      opacity:.52;
+    }
+    .hero-wall .w{
+      font-size: clamp(260px, 18vw, 560px);
+      text-shadow: 0 0 54px rgba(255,42,42,.24), 0 0 44px rgba(255,212,0,.18);
+    }
+    @media (max-width: 940px){
+      .hero-wall{display:none;}
+    }
+
+    .title{
+margin:0;
+      padding:60px;
+      font-family: "Anton", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+      line-height:.86;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      font-size: clamp(86px, 12vw, 190px);
+}
+
+    h1 {
+      color:#00ffd0;
+      font-size:48px;
+      letter-spacing:2px;
+    .punch{
+      margin:18px 0 0;
+      font-size:16px;
+      line-height:1.55;
+      color:rgba(242,242,242,.92);
+      max-width: 52ch;
+}
+
+    .subtitle {
+      color:#7a5cff;
+      margin-bottom:40px;
+    .cta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:22px;
+}
+
+    a {
+      color:#00ffd0;
+      text-decoration:none;
+    $1box-shadow: var(--shadow);
+      color:var(--cipher-white);
+      font-weight:600;
+      font-size:13px;
+      transition: transform .12s ease, border-color .12s ease;
+    }
+    .btn:hover{transform: translateY(-1px); border-color:rgba(255,212,0,.28)}
+
+    .btn.primary{
+      border-color: rgba(255,42,42,.35);
+    }
+    .btn.primary:hover{border-color: rgba(255,212,0,.45)}
+
+    .btn .arrow{
+      width:18px;height:18px; display:inline-grid; place-items:center;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.2);
+      color: var(--cipher-ash);
+    }
+
+    $1border: 1px solid rgba(255,255,255,.16);
+      border-radius: var(--r);
+      padding: 16px;
+      box-shadow: var(--shadow), 0 0 36px rgba(255,42,42,.16), 0 0 30px rgba(255,212,0,.14);
+    }
+    $1opacity:.72;
+}
+
+    a:hover {
+      text-decoration:underline;
+    .side{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .side .label{
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--cipher-ash);
+      margin:0 0 8px;
+    }
+
+    .stat{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.06);
+      background: rgba(0,0,0,.12);
+    }
+    .stat b{font-size:12px; color:rgba(242,242,242,.92)}
+    .stat span{font-size:12px; color:var(--cipher-ash)}
+
+    .divider{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+      margin: 24px 0;
+    }
+
+    section{padding: 26px 0;}
+
+    .section-title{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:14px;
+      margin: 0 0 12px;
+    }
+    .section-title h2{
+      margin:0;
+      font-family:"Anton", Impact, sans-serif;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      font-size: 28px;
+      line-height:1;
+      position:relative;
+    }
+    .section-title h2::after{
+      content:"";
+      display:block;
+      width:84px;
+      height:2px;
+      margin-top:10px;
+      background: linear-gradient(90deg, rgba(255,42,42,.9), rgba(255,212,0,.9));
+      opacity:.65;
+    }
+    .section-title .hint{
+      font-size:12px;
+      color: var(--cipher-ash);
+}
+
+    .card {
+      background:#111;
+      padding:20px;
+      margin-bottom:20px;
+      border-radius:10px;
+      border:1px solid #222;
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    $1border:1px solid rgba(255,255,255,.16);
+      background:
+        radial-gradient(520px 220px at 10% 0%, rgba(255,42,42,.18), transparent 62%),
+        radial-gradient(520px 220px at 90% 0%, rgba(255,212,0,.16), transparent 62%),
+        linear-gradient(180deg, rgba(21,21,27,.90), rgba(10,10,12,.92));
+      box-shadow: var(--shadow), 0 0 36px rgba(255,42,42,.16), 0 0 30px rgba(255,212,0,.14);
+      padding: 16px;
+      min-height: 170px;
+      transition: transform .12s ease, border-color .12s ease;
+    }
+    $1opacity:.58;
+      pointer-events:none;
+    }
+
+    /* Left “impact bar” on hover. */
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width:0;
+      background: linear-gradient(180deg, rgba(255,42,42,.75), rgba(255,212,0,.6));
+      transition: width .12s ease;
+      opacity:.9;
+    }
+
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,212,0,.38);
+    }
+    .card:hover::before{width:4px;}
+
+    .noun{
+      font-size:12px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:var(--cipher-yellow);
+      margin:0 0 10px;
+    }
+
+    .card h3{
+      margin:0 0 8px;
+      font-size:18px;
+      color:rgba(242,242,242,.96);
+    }
+
+    .card p{
+      margin:0 0 10px;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(242,242,242,.80);
+    }
+
+    .micro{
+      margin:0 0 12px;
+      font-size:12px;
+      color: var(--cipher-ash);
+    }
+
+    .card .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:auto;
+    }
+
+    .link{
+      font-size:12px;
+      color: var(--cipher-white);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      padding: 8px 10px;
+      transition: transform .12s ease, border-color .12s ease;
+      background: rgba(0,0,0,.12);
+    }
+    .link:hover{transform: translateY(-1px); border-color: rgba(255,42,42,.30)}
+
+    .list{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    $1border:1px solid rgba(255,255,255,.16);
+      background:
+        radial-gradient(520px 220px at 12% 0%, rgba(255,42,42,.16), transparent 65%),
+        radial-gradient(520px 220px at 88% 0%, rgba(255,212,0,.14), transparent 65%),
+        rgba(0,0,0,.12);
+      transition: transform .12s ease, border-color .12s ease;
+    }
+    $1opacity:.52;
+      pointer-events:none;
+      border-top-left-radius:14px;
+      border-top-right-radius:14px;
+    }
+    .note:hover{transform: translateY(-1px); border-color: rgba(255,212,0,.34)}
+    .note b{font-size:13px; color:rgba(242,242,242,.95)}
+    .note span{font-size:12px; color:var(--cipher-ash)}
+
+    .cols{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:12px;
+      align-items:start;
+    }
+    .cols.single{grid-template-columns: 1fr;}
+
+    .bullets{
+      margin: 0;
+      padding-left: 18px;
+      color: rgba(242,242,242,.86);
+      line-height:1.6;
+      font-size:13px;
+    }
+    .bullets li{margin: 6px 0;}
+
+    footer{
+      padding: 26px 0 40px;
+      color: var(--cipher-ash);
+      font-size:12px;
+      border-top:1px solid rgba(255,255,255,.06);
+      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.35));
+    }
+
+    .foot{
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    /* Subtle load flicker. Keep it tasteful. */
+    .flicker{
+      animation: flicker .42s ease 1;
+    }
+    @keyframes flicker{
+      0%{filter: brightness(1) contrast(1)}
+      20%{filter: brightness(1.05) contrast(1.08)}
+      28%{filter: brightness(.95) contrast(1.1)}
+      45%{filter: brightness(1.02) contrast(1.05)}
+      100%{filter: brightness(1) contrast(1)}
+    }
+
+    /* Responsive */
+    @media (max-width: 940px){
+      .hero-grid{grid-template-columns: 1fr;}
+      .grid{grid-template-columns: repeat(2, 1fr);}
+      .cols{grid-template-columns: 1fr;}
+      .hero{min-height:auto; padding:56px 0 20px;}
+    }
+    @media (max-width: 560px){
+      .grid{grid-template-columns: 1fr;}
+      .links{gap:8px}
+      .links a{padding:7px 9px}
+      .title{letter-spacing:.01em}
+}
+</style>
 </head>
+
 <body>
-    <header>
-        <h1>Welcome to CipherFrame</h1>
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">About</a>
-            <a href="#">Services</a>
-            <a href="#">Contact</a>
+  <div class="wrap">
+    <header class="nav">
+      <div class="container nav-inner">
+        <div class="mark" aria-label="CipherFrame">
+          <div class="dot" aria-hidden="true"></div>
+          <div><span class="c">CIPHER</span><span class="f">FRAME</span></div>
+        </div>
+
+        <nav class="links" aria-label="Site">
+          <a href="#projects">Projects</a>
+          <a href="#notes">Field Notes</a>
+          <a href="#contact">Contact</a>
         </nav>
+      </div>
     </header>
+
     <main>
-        <h2>About Us</h2>
-        <p>We provide innovative solutions for modern problems.</p>
-        <h2>Our Services</h2>
-        <p>Check out our range of services.</p>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <h1 class="title flicker" aria-label="CipherFrame">
+              <span class="c">CIPHER</span><br />
+              <span class="f">FRAME</span>
+            </h1>
+            <p class="punch">Independent security research & experimental tooling. Trap-first. Signal over noise.</p>
+
+            <div class="cta">
+              <a class="btn primary" href="#projects">
+                Enter
+                <span class="arrow" aria-hidden="true">↘</span>
+              </a>
+              <a class="btn" href="https://github.com/CipherFrame" target="_blank" rel="noreferrer">
+                GitHub
+                <span class="arrow" aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </div>
+
+                  </div>
+        <div class="hero-wall" aria-hidden="true">
+          <div class="w"><span class="c">CIPHER</span><br /><span class="f">FRAME</span></div>
+        </div>
+      </section>
+
+      <section id="projects">
+        <div class="container">
+          <div class="section-title">
+            <h2>Projects</h2>
+            <div class="hint">Cohesive suite. Not a grab-bag.</div>
+          </div>
+
+          <div class="grid" role="list">
+            <article class="card" role="listitem">
+              <div class="noun">EDR</div>
+              <h3>CipherEDR</h3>
+              <p>Experimental endpoint detection & response. Built for traps, not dashboards.</p>
+              <div class="micro">Why: make the wrong touch loud.</div>
+              <div class="actions">
+                <a class="link" href="https://github.com/CipherFrame/CipherEDR" target="_blank" rel="noreferrer">Repo ↗</a>
+                <a class="link" href="https://github.com/CipherFrame/CipherEDR#readme" target="_blank" rel="noreferrer">Docs ↗</a>
+              </div>
+            </article>
+
+            <article class="card" role="listitem">
+              <div class="noun">OSINT</div>
+              <h3>CipherOSINT</h3>
+              <p>Feeds → maps → dossiers. A calm interface for chaotic public data.</p>
+              <div class="micro">Why: reduce noise, keep teeth.</div>
+              <div class="actions">
+                <a class="link" href="https://github.com/CipherFrame" target="_blank" rel="noreferrer">Placeholder ↗</a>
+              </div>
+            </article>
+
+            <article class="card" role="listitem">
+              <div class="noun">HUNTKIT</div>
+              <h3>CipherHuntKit</h3>
+              <p>Detection engineering utilities, sanity scripts, and repeatable hunting patterns.</p>
+              <div class="micro">Why: fewer rituals, more results.</div>
+              <div class="actions">
+                <a class="link" href="https://github.com/CipherFrame" target="_blank" rel="noreferrer">Placeholder ↗</a>
+              </div>
+            </article>
+
+            <article class="card" role="listitem">
+              <div class="noun">LABS</div>
+              <h3>CipherLabs</h3>
+              <p>Attack/defense experiments. Controlled burns. Post-mortems. Repeat.</p>
+              <div class="micro">Why: practice beats opinions.</div>
+              <div class="actions">
+                <a class="link" href="https://github.com/CipherFrame" target="_blank" rel="noreferrer">Placeholder ↗</a>
+              </div>
+            </article>
+
+            <article class="card" role="listitem">
+              <div class="noun">BRAND</div>
+              <h3>CipherBrand</h3>
+              <p>The source of truth: style, banners, templates, README patterns.</p>
+              <div class="micro">Why: every repo feels like the same universe.</div>
+              <div class="actions">
+                <a class="link" href="https://github.com/CipherFrame" target="_blank" rel="noreferrer">Placeholder ↗</a>
+              </div>
+            </article>
+
+            <article class="card" role="listitem">
+              <div class="noun">STATUS</div>
+              <h3>Roadmap</h3>
+              <p>What’s cooking, what’s dead, what’s next. No mystery, no fluff.</p>
+              <div class="micro">Why: momentum is a weapon.</div>
+              <div class="actions">
+                <a class="link" href="#notes">Field Notes ↓</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="notes">
+        <div class="container">
+          <div class="section-title">
+            <h2>Field Notes</h2>
+          </div>
+
+          <div class="cols single">
+            <div class="panel">
+              <p class="label">Recent</p>
+              <div class="list">
+                <a class="note" href="#" onclick="return false;">
+                  <b>Tripwire thinking: why decoys work</b><span>soon</span>
+                </a>
+                <a class="note" href="#" onclick="return false;">
+                  <b>Signals that matter (and the ones that cosplay)</b><span>soon</span>
+                </a>
+                <a class="note" href="#" onclick="return false;">
+                  <b>EDR fundamentals: collection vs conviction</b><span>soon</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="contact">
+        <div class="container">
+          <div class="section-title">
+            <h2>Contact</h2>
+            <div class="hint">Keep it simple.</div>
+          </div>
+
+          <div class="cols">
+            <div class="panel">
+              <p class="label">Primary</p>
+              <p style="margin:0; color:rgba(242,242,242,.80); font-size:13px; line-height:1.6;">
+                Use GitHub.
+              </p>
+              <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+                <a class="link" href="https://github.com/CipherFrame" target="_blank" rel="noreferrer">Profile ↗</a>
+                <a class="link" href="https://github.com/CipherFrame/CipherEDR/issues" target="_blank" rel="noreferrer">Issues ↗</a>
+              </div>
+            </div>
+
+            <div class="panel">
+              <p class="label">Security</p>
+              <p style="margin:12px 0 0; color:var(--cipher-ash); font-size:12px; line-height:1.6;">
+                (Add a PGP key + security.txt when you’re ready.)
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
+
+<h1>CipherFrame</h1>
+<div class="subtitle">
+Independent security research & experimental tooling
+</div>
     <footer>
-        <p>&copy; 2026 CipherFrame. All Rights Reserved.</p>
+      <div class="container foot">
+        <div>© <span id="y"></span> CipherFrame</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="links" href="#projects" style="padding:0; border:none; background:none;">Projects</a>
+          <span style="opacity:.35">•</span>
+          <a class="links" href="https://github.com/CipherFrame" target="_blank" rel="noreferrer" style="padding:0; border:none; background:none;">GitHub ↗</a>
+        </div>
+      </div>
     </footer>
+
+<div class="card">
+<h3>CipherEDR</h3>
+<p>Experimental endpoint detection & response framework.</p>
+<a href="https://github.com/CipherFrame/CipherEDR">View repository →</a>
+</div>
+  </div>
+
+<div class="card">
+<h3>Projects</h3>
+<p>Detection engineering, threat intelligence tools, and security experiments.</p>
+<a href="https://github.com/CipherFrame">Explore GitHub →</a>
+</div>
+  <script>
+    // Tiny utility only. No heavy JS.
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // Optional: remove flicker after first paint so it doesn't replay on navigation.
+    window.addEventListener('load', () => {
+      const t = document.querySelector('.title');
+      if (t) t.classList.remove('flicker');
+    });
+  </script>
 </body>
 </html>
